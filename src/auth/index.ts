@@ -51,8 +51,10 @@ export const verifyJwt = (token: string) => {
 	return jwt.verify(token, publicKEY, verifyOptions) as JWTPayload;
 };
 
-const hasAllPermissions = (requestedPerms: Permission[], userPerms: Permission[]) =>
-	userPerms.every(perm => requestedPerms.includes(perm));
+export const hasAllPermissions = (
+	requestedPerms: Permission[],
+	userPerms: Permission[]
+) => requestedPerms.every(perm => userPerms.includes(perm));
 
 export const useJWT = (perms: Permission[]): RequestHandler[] => {
 	const jwtMiddleware: RequestHandler = (req, res, next) => {

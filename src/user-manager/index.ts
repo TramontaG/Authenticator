@@ -15,7 +15,6 @@ export type MaybeWithId<T extends keyof AllEntitiesModel> =
 	| AllEntitiesModel[T];
 
 const privateKEY = fs.readFileSync('./keys/keys2.key', 'utf8');
-console.log(privateKEY.length);
 
 class UserManager {
 	DBInstance: Database;
@@ -38,7 +37,6 @@ class UserManager {
 
 	private async userDeleted(user: MaybeWithId<'user'>) {
 		const [myUser] = await this.getUserByUsername(user.username);
-		console.log(user.dateRemoved);
 		return !!myUser && myUser.dateRemoved !== null;
 	}
 

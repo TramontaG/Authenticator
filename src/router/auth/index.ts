@@ -1,5 +1,6 @@
 import express, { Router } from 'express';
-import { generateJwt } from 'src/auth';
+import { generateJwt, hasAllPermissions, verifyJwt } from 'src/auth';
+import { Permission } from 'src/db/schema';
 import userManager from 'src/user-manager';
 
 const router = Router();
@@ -33,6 +34,44 @@ router.post<{}, {}, PostParams>('/', async (req, res) => {
 	});
 
 	res.send(jwt);
+});
+
+type JwtAuthParams = {
+	perms?: Permission[];
+	jwt?: string;
+};
+router.post<{}, {}, JwtAuthParams>('/jwt', async (req, res) => {
+	try {
+		const jwt = req.body.jwt || req.cookies.jwt;
+		const requestedPerms = req.body.perms;
+
+		const { dateAdded, dateRemoved, passwordHash, permissions, username } =
+			verifyJwt(jwt);
+
+		if (!requestedPerms) {
+			return res.status(402).send();
+		}
+
+		if (!hasAllPermissions(requestedPerms, permissions)) {
+			return res.status(401).send();
+		}
+
+		const newJwt = generateJwt({
+			dateAdded,
+			dateRemoved,
+			passwordHash,
+			permissions,
+			username,
+		});
+
+		res
+			.cookie('jwt', newJwt, {
+				maxAge: 7200000,
+			})
+			.send('ok');
+	} catch (e) {
+		res.status(403).send();
+	}
 });
 
 export default router;
