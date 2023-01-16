@@ -1,1 +1,8 @@
-console.log('Hello, world!');
+import express from 'express';
+import router from './router';
+
+const app = express();
+
+app.use('/', router);
+
+app.listen(7777);
