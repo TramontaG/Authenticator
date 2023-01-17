@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import express, { Router } from 'express';
 import { generateJwt, hasAllPermissions, verifyJwt } from 'src/auth';
 import { Permission } from 'src/db/schema';
@@ -5,6 +6,7 @@ import userManager from 'src/user-manager';
 
 const router = Router();
 router.use(express.json());
+router.use(cookieParser());
 
 type PostParams = {
 	username?: string;
@@ -45,6 +47,8 @@ router.post<{}, {}, JwtAuthParams>('/jwt', async (req, res) => {
 		const jwt = req.body.jwt || req.cookies.jwt;
 		const requestedPerms = req.body.perms;
 
+		console.log(jwt);
+
 		const { dateAdded, dateRemoved, passwordHash, permissions, username } =
 			verifyJwt(jwt);
 
@@ -70,6 +74,7 @@ router.post<{}, {}, JwtAuthParams>('/jwt', async (req, res) => {
 			})
 			.send('ok');
 	} catch (e) {
+		console.log(e);
 		res.status(403).send();
 	}
 });
